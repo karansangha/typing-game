@@ -1,0 +1,3 @@
+This is a simple typing game we created in school for our IT class project. It creates a list of words by reading them off "words.txt" and then uses displays those words on the screen for the user to type in. 
+
+Use menu() function after compiling and running "typing.py" in your python shell.
