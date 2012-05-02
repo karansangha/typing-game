@@ -1,24 +1,5 @@
 import random
 import time
-    
-
-def menu():
-    prompt = " P)play\n"
-    prompt = prompt + "R)ules of the game\n"
-    prompt = prompt + "D)isplay high scores\n"
-    prompt = prompt + "Q)uit\n"
-    prompt = prompt + "Please choose one:"
-    choices = ("P", "p", "R", "r", "D", "d", "Q", "q")
-    c = userChoice(prompt, choices)
-    if c=='q' or c=='Q':
-            print "You quit..."
-    else:
-        while c!='q' or c!='Q':
-            if c=='p':
-                play()
-            elif (c=='r') or (c=='R'):
-                rules()
-                c='q'
 
 def userChoice(prompt, c):
     """prompt - a string containing the prompt to display.
@@ -30,6 +11,7 @@ def userChoice(prompt, c):
     return userInput
 
 def makelist():
+    """makes the list of words from words.txt file"""
     liopen = open("words.txt")
     theList = []
     for entry in liopen:
@@ -39,17 +21,25 @@ def makelist():
     return theList
 
 def randomword(theList):
+    """chooses a random word from the wordlist"""
     return random.choice(theList)
 
+def rules():
+    """Rules of the game"""
+    print "Welcome"
+    print "Test your typing skills..."
+    print "Type as many words as you can in under 60 seconds and get your RAW words per minute and actual words per minute"
 
 def play():
+    """Play function of the game."""
     usedtime = 0.0
     remtime = 0.0
     twords = 0
     cwords = 0
     listi = makelist()
-    while (usedtime <= 5):
+    while (usedtime <= 60):
         word = randomword(listi)
+        listi.remove(word)
         remtime = 60.0 - usedtime
         print remtime
         print word
@@ -61,33 +51,57 @@ def play():
         usedtime += (end - start)
         twords += 1
     print "TIMES UP!"
-    print "Number of words typed:", twords
-    print "Number of misspelled words:", twords - cwords
-    print "RAW words per minute:", (twords/usedtime) * 100.0, "wpm"
-    actual=(cwords/usedtime) * 100.0
-    print "Actual words per minute:",actual, "wpm"
+    print "Total no. of words:", twords
+    incwords=twords - cwords
+    print "No. of incorrect words", incwords
+    raw=(twords/usedtime) * 60.0
+    print "RAW words per minute %.2f" %raw
+    actual=(cwords/usedtime) * 60.0
+    print "Actual words per minute: %.2f"%actual
     scores=scorelist()
     addscore(scores,actual)
     writescore(scores)
+
+def menu():
+    """Menu for the game"""
+    prompt = "P)lay\n"
+    prompt = prompt + "R)ules of the game\n"
+    prompt = prompt + "D)isplay high scores\n"
+    prompt = prompt + "Q)uit\n"
+    prompt = prompt + "Please choose one:"
+    choices = ("P", "p", "R", "r", "D", "d", "Q", "q")
+    c = userChoice(prompt, choices)
+    if c=='q' or c=='Q':
+            print "You quit..."
+    else:
+        while c!='q' or c!='Q':
+            if (c=='p') or (c=='P'):
+                play()
+                c='q'
+            elif (c=='r') or (c=='R'):
+                rules()
+                c='q'
 
 ## --------------------------------------------------------##
 ## HIGHSCORE FUNCTIONS!
 
 def scorelist():
+    """returns the list of scores"""
+    scores=[]
     try:
-        fout = open("highscore.csv", "r")
-        scores=[]
-        for record in fout:
-            record=record.strip()
+        fout = open("highscore.csv", "r")    
+        for entry in fout:
+            entry=entry.strip()
+            entrie=entry.split(",")
+            record=(entrie[0], entrie[1])
             scores.append(record)
         fout.close()
-        print "no error", scores
         return scores
     except IOError as e:
-        print " :(( error"
-        return []
+        return scores
         
 def bubbleSort(theList):
+    """Bubblesorts the list"""
     lastIndex = len(theList)-2
     while lastIndex >= 0:
         i = 0
@@ -109,23 +123,28 @@ def eligible(theList,score):
     return False # score is not eligible
 
 def addscore(theList, score):
+    """adds the eligible score to theList"""
     if eligible(theList, score):
         print "Congrats! You made the top 10."
         name = raw_input("What is your name: ")
         entry=(name, score)
         theList.append(entry)
         bubbleSort(theList)
+        print theList
+
         if len(theList)>10:
             #only keep top 10 values
             theList.pop()
+        return theList
     else:
         print "BOOOOOOOO!"
+        return theList
 
 def writescore(theList):
+    """writes the scores present in theList to the file"""
     fout = open("highscore.csv", "w")
     bubbleSort(theList)
     for entry in theList:
-        csvData = entry[0]+","+str(entry[1])+"\n"
-        fout.write(csvData)
+        record= entry[0]+","+str(entry[1])+"\n"
+        fout.write(record)
     fout.close()
-    
